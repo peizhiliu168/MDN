@@ -310,9 +310,23 @@ def mine_patterns(root_dir, min_support=0.5, k_min=2, k_max=3, num_samples=2000,
         pattern_examples = {} 
         
         # Add mode to worker args
-        worker_args = [(G, k, i, num_samples, use_sampling, mode) for i, G in enumerate(graphs)]
+        worker_args = []
+        chunk_size = 500
+        
+        for i, G in enumerate(graphs):
+            if use_sampling:
+                # Split num_samples into chunks for better parallelization
+                remaining = num_samples
+                while remaining > 0:
+                     curr = min(remaining, chunk_size)
+                     worker_args.append((G, k, i, curr, use_sampling, mode))
+                     remaining -= curr
+            else:
+                # Exhaustive search, one task per graph
+                worker_args.append((G, k, i, num_samples, use_sampling, mode))
         
         with concurrent.futures.ProcessPoolExecutor() as executor:
+            # Increase chunksize for executor map since we have more tasks now
             results = executor.map(mine_graph_k, worker_args, chunksize=1)
             
             for g_idx, hash_counts, total_units, examples in results:
