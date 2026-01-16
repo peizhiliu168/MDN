@@ -89,6 +89,17 @@ def visualize_interaction_graph(G: nx.MultiDiGraph, output_file: str = None, tit
     # For now, straight or slightly curved.
     nx.draw_networkx_edges(G, pos, edgelist=interaction_edges, 
                            edge_color='red', arrows=True, width=1.5, alpha=0.8)
+                           
+    # Draw Interaction Edge Labels
+    interaction_labels = {}
+    for u, v, data in G.edges(data=True):
+        if data.get('type') == 'interaction':
+            lbl = data.get('label', '')
+            if lbl:
+                interaction_labels[(u,v)] = lbl
+                
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=interaction_labels, font_size=8, font_color='darkred',
+                                 bbox=dict(facecolor='white', alpha=0.7, edgecolor='none', pad=1))
                                    
     if title:
         plt.title(title)
