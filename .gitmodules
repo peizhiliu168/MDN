@@ -1,0 +1,3 @@
+[submodule "FTCircuitBench"]
+	path = FTCircuitBench
+	url = git@github.com:peizhiliu168/FTCircuitBench.git
