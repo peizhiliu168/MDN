@@ -277,7 +277,9 @@ def mine_patterns(root_dir, min_support=0.5, k_min=2, k_max=3, num_samples=2000,
     print(f"Found {len(files)} QASM files.")
     
     # Create base output directory
-    base_out_path = os.path.join(output_dir, mode)
+    # Extract benchmark name from the last part of directory path
+    benchmark_name = os.path.basename(os.path.normpath(root_dir))
+    base_out_path = os.path.join(output_dir, benchmark_name, mode)
     os.makedirs(base_out_path, exist_ok=True)
     print(f"Output directory: {base_out_path}")
     
