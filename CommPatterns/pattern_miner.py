@@ -199,6 +199,7 @@ def sample_subgraphs_by_interaction_k(G, k, num_samples=2000):
         # Expand
         valid_sample = False
         # Limit expansion attempts
+        # Limit expansion attempts
         max_attempts = k * 10 
         for _ in range(max_attempts):
             # Find neighbors
@@ -214,7 +215,25 @@ def sample_subgraphs_by_interaction_k(G, k, num_samples=2000):
                 
             # Pick random neighbor
             next_node = random.choice(list(neighbors))
-            curr_nodes.add(next_node)
+            
+            # Identify "Atomic Unit": next_node + all its interaction partners
+            nodes_to_add = {next_node}
+            
+            # Check outgoing interaction edges from next_node
+            for succ in G.successors(next_node):
+                # G is MultiDiGraph, check edge data
+                # We need all edges between next_node and succ
+                for key in G[next_node][succ]:
+                     if G[next_node][succ][key].get('type') == 'interaction':
+                         nodes_to_add.add(succ)
+                         
+            # Check outgoing interaction edges TO next_node (incoming)
+            for pred in G.predecessors(next_node):
+                for key in G[pred][next_node]:
+                     if G[pred][next_node][key].get('type') == 'interaction':
+                         nodes_to_add.add(pred)
+
+            curr_nodes.update(nodes_to_add)
             
             sub = G.subgraph(curr_nodes)
             curr_k = count_interaction_edges(sub)
