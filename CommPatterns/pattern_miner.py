@@ -291,13 +291,39 @@ def mine_graph_k(args):
             
     return (g_idx, hash_counts, total_units, examples)
 
-def mine_patterns(root_dir, min_support=0.5, k_min=2, k_max=3, num_samples=2000, use_sampling=True, mode='dataflow', output_dir='results'):
-    files = get_qasm_files(root_dir)
+def collect_files(inputs):
+    qasm_files = []
+    for inp in inputs:
+        if os.path.isfile(inp) and inp.endswith(".qasm"):
+             qasm_files.append(inp)
+        elif os.path.isdir(inp):
+            for root, dirs, files in os.walk(inp):
+                for file in files:
+                    if file.endswith(".qasm"):
+                        qasm_files.append(os.path.join(root, file))
+    return qasm_files
+
+def mine_patterns(inputs, min_support=0.5, k_min=2, k_max=3, num_samples=2000, use_sampling=True, mode='dataflow', output_dir='results'):
+    files = collect_files(inputs)
     print(f"Found {len(files)} QASM files.")
     
+    if not files:
+        print("No QASM files found. Exiting.")
+        return
+
+    # Determine benchmark name for output directory
+    if len(inputs) == 1 and os.path.isdir(inputs[0]):
+        # Original behavior: directory name
+        benchmark_name = os.path.basename(os.path.normpath(inputs[0]))
+    elif len(files) == 1:
+        # Single file: use parent dir name or file basename
+        benchmark_name = os.path.splitext(os.path.basename(files[0]))[0] 
+    else:
+        # Multiple files/dirs: try to find common directory or use "custom"
+        # Simple heuristic: "custom_selection"
+        benchmark_name = "custom_selection"
+
     # Create base output directory
-    # Extract benchmark name from the last part of directory path
-    benchmark_name = os.path.basename(os.path.normpath(root_dir))
     base_out_path = os.path.join(output_dir, benchmark_name, mode)
     os.makedirs(base_out_path, exist_ok=True)
     print(f"Output directory: {base_out_path}")
@@ -393,7 +419,7 @@ def mine_patterns(root_dir, min_support=0.5, k_min=2, k_max=3, num_samples=2000,
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Mine frequent communication patterns in QASM circuits.")
-    parser.add_argument("directory", type=str, help="Directory containing QASM files")
+    parser.add_argument("inputs", type=str, nargs='+', help="Input QASM files or directories")
     parser.add_argument("k_max", type=int, nargs="?", default=3, help="Maximum subgraph size (k)")
     parser.add_argument("--k-min", type=int, default=2, help="Minimum subgraph size (k)")
     parser.add_argument("--samples", type=int, default=2000, help="Number of samples per graph (if sampling)")
@@ -405,4 +431,4 @@ if __name__ == "__main__":
     
     use_sampling = not args.exact
     
-    mine_patterns(args.directory, min_support=0.5, k_min=args.k_min, k_max=args.k_max, num_samples=args.samples, use_sampling=use_sampling, mode=args.mode, output_dir=args.output_dir)
+    mine_patterns(args.inputs, min_support=0.5, k_min=args.k_min, k_max=args.k_max, num_samples=args.samples, use_sampling=use_sampling, mode=args.mode, output_dir=args.output_dir)
