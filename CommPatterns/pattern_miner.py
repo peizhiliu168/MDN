@@ -272,7 +272,7 @@ def mine_graph_k(args):
             
     return (g_idx, hash_counts, total_units, examples)
 
-def mine_patterns(root_dir, min_support=0.5, k_max=3, num_samples=2000, use_sampling=True, mode='dataflow', output_dir='results'):
+def mine_patterns(root_dir, min_support=0.5, k_min=2, k_max=3, num_samples=2000, use_sampling=True, mode='dataflow', output_dir='results'):
     files = get_qasm_files(root_dir)
     print(f"Found {len(files)} QASM files.")
     
@@ -298,7 +298,7 @@ def mine_patterns(root_dir, min_support=0.5, k_max=3, num_samples=2000, use_samp
     
     mode_str = f"Sampling {num_samples} per graph" if use_sampling else "Exhaustive Search"
     
-    for k in range(2, k_max + 1):
+    for k in range(k_min, k_max + 1):
         print(f"Mining size {k} patterns ({mode_str})...")
         
         # Create k-specific folder
@@ -360,6 +360,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Mine frequent communication patterns in QASM circuits.")
     parser.add_argument("directory", type=str, help="Directory containing QASM files")
     parser.add_argument("k_max", type=int, nargs="?", default=3, help="Maximum subgraph size (k)")
+    parser.add_argument("--k-min", type=int, default=2, help="Minimum subgraph size (k)")
     parser.add_argument("--samples", type=int, default=2000, help="Number of samples per graph (if sampling)")
     parser.add_argument("--exact", action="store_true", help="Use exhaustive search instead of sampling")
     parser.add_argument("--mode", choices=['dataflow', 'comm'], default='dataflow', help="Mining mode: 'dataflow' or 'comm' (interaction flow)")
@@ -369,4 +370,4 @@ if __name__ == "__main__":
     
     use_sampling = not args.exact
     
-    mine_patterns(args.directory, k_max=args.k_max, num_samples=args.samples, use_sampling=use_sampling, mode=args.mode, output_dir=args.output_dir)
+    mine_patterns(args.directory, min_support=0.5, k_min=args.k_min, k_max=args.k_max, num_samples=args.samples, use_sampling=use_sampling, mode=args.mode, output_dir=args.output_dir)
