@@ -11,6 +11,8 @@
 #SBATCH --output=/home/plh2448/projects/MDN/CommPatterns/slurm/file_mine_adder.out
 #SBATCH --error=/home/plh2448/projects/MDN/CommPatterns/slurm/file_mine_adder.err
 
+module load python/3.10.1
+
 source /home/plh2448/projects/MDN/.venv/bin/activate
 
 cd /home/plh2448/projects/MDN/CommPatterns
