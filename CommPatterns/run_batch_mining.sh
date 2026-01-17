@@ -59,7 +59,7 @@ for dir in "${TARGET_BENCHMARKS[@]}"; do
     BENCH_NAME=$(basename "$dir")
     echo "Processing Benchmark: $BENCH_NAME"
     
-    ../.venv/bin/python "$MINER_SCRIPT" "$dir" "$K_MAX" --k-min "$K_MIN" --mode comm --samples "$SAMPLES"
+    ../.venv/bin/python "$MINER_SCRIPT" "$dir" --k-max "$K_MAX" --k-min "$K_MIN" --mode comm --samples "$SAMPLES"
     
     echo "Finished $BENCH_NAME"
     echo "--------------------------------------------------------"

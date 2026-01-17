@@ -420,7 +420,7 @@ def mine_patterns(inputs, min_support=0.5, k_min=2, k_max=3, num_samples=2000, u
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Mine frequent communication patterns in QASM circuits.")
     parser.add_argument("inputs", type=str, nargs='+', help="Input QASM files or directories")
-    parser.add_argument("k_max", type=int, nargs="?", default=3, help="Maximum subgraph size (k)")
+    parser.add_argument("--k-max", type=int, default=3, help="Maximum subgraph size (k)")
     parser.add_argument("--k-min", type=int, default=2, help="Minimum subgraph size (k)")
     parser.add_argument("--samples", type=int, default=2000, help="Number of samples per graph (if sampling)")
     parser.add_argument("--exact", action="store_true", help="Use exhaustive search instead of sampling")

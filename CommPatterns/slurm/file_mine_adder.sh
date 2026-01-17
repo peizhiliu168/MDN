@@ -17,4 +17,4 @@ source /home/plh2448/projects/MDN/.venv/bin/activate
 
 cd /home/plh2448/projects/MDN/CommPatterns
 
-./run_parallel_file_mining.sh adder 2 20 100000
+./run_parallel_file_mining.sh adder 4 20 100000

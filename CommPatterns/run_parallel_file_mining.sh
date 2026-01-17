@@ -34,7 +34,7 @@ for qasm_file in "$TARGET_DIR"/*.qasm; do
         echo "Launching mining for: $(basename "$qasm_file")"
         
         # Run mining in background
-        "$PYTHON_EXEC" "$MINER_SCRIPT" "$qasm_file" "$K_MAX" --k-min "$K_MIN" --mode comm --samples "$SAMPLES" &
+        "$PYTHON_EXEC" "$MINER_SCRIPT" "$qasm_file" --k-max "$K_MAX" --k-min "$K_MIN" --mode comm --samples "$SAMPLES" &
         
         ((count++))
     fi
