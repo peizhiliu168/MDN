@@ -7,7 +7,7 @@
 #SBATCH --mail-user=peizhiliu2023@u.northwestern.edu
 #SBATCH -N 1
 #SBATCH --ntasks-per-node=48
-#SBATCH --mem=192G
+#SBATCH --mem=480G
 #SBATCH --output=/home/plh2448/projects/MDN/CommPatterns/slurm/file_mine_hamiltonians.out
 #SBATCH --error=/home/plh2448/projects/MDN/CommPatterns/slurm/file_mine_hamiltonians.err
 
