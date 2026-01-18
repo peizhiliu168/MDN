@@ -1,13 +1,13 @@
 #!/bin/bash
 #SBATCH -A p31538
 #SBATCH -t 48:00:00
-#SBATCH -p normal
-#SBATCH --job-name="file_mine_qsvt"
+#SBATCH -p genhimem
+#SBATCH --job-name="qsvt"
 #SBATCH --mail-type=BEGIN,END,NONE,FAIL,REQUEUE
 #SBATCH --mail-user=peizhiliu2023@u.northwestern.edu
 #SBATCH -N 1
-#SBATCH --ntasks-per-node=48
-#SBATCH --mem=480G
+#SBATCH --ntasks-per-node=52
+#SBATCH --mem=1400G
 #SBATCH --output=/home/plh2448/projects/MDN/CommPatterns/slurm/file_mine_qsvt.out
 #SBATCH --error=/home/plh2448/projects/MDN/CommPatterns/slurm/file_mine_qsvt.err
 
