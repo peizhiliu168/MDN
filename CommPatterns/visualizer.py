@@ -61,15 +61,7 @@ def visualize_interaction_graph(G: nx.MultiDiGraph, output_file: str = None, tit
         # Add some jitter or scaling if needed.
         pos[n] = (data.get('layer', 0), -data.get('qubit_index', 0))
         
-    # Draw Nodes
-    # Color mapping? Maybe by Op Name?
-    nx.draw_networkx_nodes(G, pos, node_size=300, node_color='lightblue', alpha=0.9)
-    
-    # Labels (Q0, Q1...)
-    labels = nx.get_node_attributes(G, 'label')
-    nx.draw_networkx_labels(G, pos, labels=labels, font_size=8)
-    
-    # Draw Edges types separately
+    # Prepare edge lists
     flow_edges = []
     interaction_edges = []
     
@@ -79,16 +71,43 @@ def visualize_interaction_graph(G: nx.MultiDiGraph, output_file: str = None, tit
             flow_edges.append((u, v))
         else:
             interaction_edges.append((u, v))
-            
-    # Draw Flow Edges (Horizontal, lighter)
+
+    # 1. Flow Edges (Background, zorder=1)
     nx.draw_networkx_edges(G, pos, edgelist=flow_edges, 
                            edge_color='gray', arrows=True, arrowstyle='->', alpha=0.5)
-                           
-    # Draw Interaction Edges (Vertical/Diagonal, distinct)
-    # Use curvature for these if they are long range?
-    # For now, straight or slightly curved.
-    nx.draw_networkx_edges(G, pos, edgelist=interaction_edges, 
-                           edge_color='red', arrows=True, width=1.5, alpha=0.8)
+
+    # 2. Nodes (Middle, zorder=2)
+    # Note: nx.draw_networkx_nodes default zorder is ~300 in recent versions, but higher than default edges (1)
+    nx.draw_networkx_nodes(G, pos, node_size=300, node_color='lightblue', alpha=0.9)
+
+    # 3. Labels (Middle-Top)
+    # labels = nx.get_node_attributes(G, 'label')
+    # nx.draw_networkx_labels(G, pos, labels=labels, font_size=8)
+    
+    # 4. Interaction Edges (Foreground, Force High Zorder)
+    # We capture the collection to modify zorder
+    interactions = nx.draw_networkx_edges(G, pos, edgelist=interaction_edges, 
+                           edge_color='red', arrows=True, width=1.5, alpha=0.8, 
+                           min_source_margin=0, min_target_margin=0)
+    
+    # Force zorder to be very high to overlay nodes (usually nodes are around z=2 or z=300)
+    if interactions:
+        # Check if it's a list (some versions return list of FancyArrowPatch) or Collection
+        if isinstance(interactions, list):
+            for patch in interactions:
+                patch.set_zorder(1000)
+        else:
+            try:
+                interactions.set_zorder(1000)
+            except AttributeError:
+                pass
+                
+    # 5. Node Labels (On top of edges check?)
+    # Usually labels should be on top of everything.
+    labels = nx.get_node_attributes(G, 'label')
+    nx.draw_networkx_labels(G, pos, labels=labels, font_size=8)
+    
+
                            
     # Draw Interaction Edge Labels
     interaction_labels = {}

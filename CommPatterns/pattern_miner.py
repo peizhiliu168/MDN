@@ -280,7 +280,45 @@ def mine_graph_k(args):
     examples = {}
     
     for nodes in subgraphs:
-        sub_G = G.subgraph(nodes).copy()
+        # Construct the subgraph manually to enforce "Logical Flow"
+        if mode == 'comm':
+             sub_G = nx.MultiDiGraph()
+             # 1. Add nodes with attributes
+             for n in nodes:
+                 sub_G.add_node(n, **G.nodes[n])
+                 
+             # 2. Add Interaction Edges (preserve exactly from G)
+             # And track nodes by qubit for Logical Flow Patching
+             nodes_by_qubit = collections.defaultdict(list)
+             
+             for u in nodes:
+                 nodes_by_qubit[G.nodes[u]['qubit_index']].append(u)
+                 # Check outgoing edges from u in G
+                 for v in G.successors(u):
+                     if v in nodes:
+                         # key is the edge key in MultiDiGraph
+                         for key in G[u][v]:
+                             edge_data = G[u][v][key]
+                             if edge_data.get('type') == 'interaction':
+                                 sub_G.add_edge(u, v, **edge_data)
+                                 
+             # 3. Add Logical Flow Edges (Transitive Closure on Line)
+             # This ensures that gaps (skipped nodes) are bridged, making 
+             # patterns with/without intermediate nodes isomorphic.
+             for q_idx, q_nodes in nodes_by_qubit.items():
+                 # Sort by layer (time)
+                 sorted_nodes = sorted(q_nodes, key=lambda n: G.nodes[n]['layer'])
+                 
+                 # Add flow edge between consecutive nodes in the sorted list
+                 for i in range(len(sorted_nodes) - 1):
+                     u, v = sorted_nodes[i], sorted_nodes[i+1]
+                     # Check if flow edge already exists? No, we are building fresh.
+                     # Just add generic flow edge
+                     sub_G.add_edge(u, v, type='flow', weight=1)
+        else:
+             # Dataflow mode: standard induced subgraph
+             sub_G = G.subgraph(nodes).copy()
+
         # Compute hash using mode-specific strategy
         h = get_canon_label(sub_G, mode=mode)
         
